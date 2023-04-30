@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shop/components/product_grid.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/utils/app_data.dart';
+import '../components/app_drawer.dart';
 
 enum Filter { favorite, all }
 
@@ -61,6 +62,7 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
         ],
       ),
       body: ProductGrid(_showFavoriteOnly),
+      drawer: const AppDrawer(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/models/cart.dart';
+import 'package:shop/models/order_list.dart';
 import '../components/cart_item_widget.dart';
 
 
@@ -32,7 +33,7 @@ class CartPage extends StatelessWidget {
                   //Texto como uma label
                   Chip(
                     label:  Text(
-                      'R\$${cart.totalAmount}',
+                      'R\$${cart.totalAmount.toStringAsFixed(2)}',
                       style: const TextStyle(color: Colors.white),
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
@@ -40,7 +41,10 @@ class CartPage extends StatelessWidget {
                   //Faz com que o Text e o Chip se juntem na ponta
                   const Spacer(),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<OrderList>(context,listen: false).addOrder(cart);
+                      cart.clear();
+                    },
                     child: Text(
                       "COMPRAR",
                       style: TextStyle(

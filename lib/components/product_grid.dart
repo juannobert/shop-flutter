@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/models/product.dart';
 import 'package:shop/models/product_list.dart';
-import 'product_item.dart';
+import 'product_grid_item.dart';
 
 class ProductGrid extends StatelessWidget {
   const ProductGrid(this.showFavoriteOnly, {super.key});
@@ -30,7 +30,7 @@ class ProductGrid extends StatelessWidget {
           return ChangeNotifierProvider.value(
               // é usado para passar valores que já temos
               value: loadedProducts[index],
-              child: const ProductItem());
+              child: const ProductGridItem());
         });
   }
 }

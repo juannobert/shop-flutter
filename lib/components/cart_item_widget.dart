@@ -13,8 +13,33 @@ class CartItemWidget extends StatelessWidget {
     return Dismissible(
       key: ValueKey(cartItem.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_){
-        Provider.of<Cart>(context,listen: false).removeItem(cartItem.productId);
+      onDismissed: (_) {
+        Provider.of<Cart>(context, listen: false)
+            .removeItem(cartItem.productId);
+      },
+      confirmDismiss: (_) {
+        return showDialog<bool>(
+            context: context,
+            builder: (_) { 
+            return AlertDialog(
+                  title: const Text("Tem certeza"),
+                  content: const Text("Deseja realmente excluir o pedido?"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true); //Exclui o pedido
+                        },
+                        child: const Text("SIM")),
+                    TextButton(
+                        onPressed: () {
+                          //Retorna falso para a função que é um Future
+                          Navigator.of(context).pop(false); 
+                        },
+                        child: const Text("NÂO"))
+                  ],
+                );
+            }              
+          );
       },
       background: Container(
         color: Theme.of(context).colorScheme.error,
@@ -27,10 +52,7 @@ class CartItemWidget extends StatelessWidget {
         ),
       ),
       child: Card(
-        margin: const EdgeInsets.symmetric(
-          vertical: 5,
-          horizontal: 15
-        ),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: Theme.of(context).primaryColor,
@@ -39,9 +61,7 @@ class CartItemWidget extends StatelessWidget {
               child: FittedBox(
                 child: Text(
                   'R\$${cartItem.price}',
-                  style: const TextStyle(
-                    color: Colors.white
-                  ),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

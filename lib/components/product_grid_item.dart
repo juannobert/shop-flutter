@@ -41,6 +41,7 @@ class ProductGridItem extends StatelessWidget {
           trailing: IconButton(
             onPressed: (){
               cart.addItem(product);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar(); //Esconde snackBar anterior
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Text("Desfazer operação"),

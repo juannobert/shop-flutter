@@ -34,7 +34,21 @@ class _ProductFormPageState extends State<ProductFormPage> {
     setState(() {}); //Atualiza o estado da aplicação fazendo a imagem aparecer
   }
 
+    bool _isValidImageUrl(String url){
+      bool isValidUrl = Uri.tryParse(url)?.hasAbsolutePath ?? false;
+      bool isValidPath = url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg');
+
+    return isValidPath & isValidUrl;
+  }
+
   void _submitForm(){
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if(!isValid){
+      return;
+    }
+
+
     _formKey.currentState?.save();
     final newProduct = Product(
       id: Random().nextInt(99999).toString(), 
@@ -70,12 +84,30 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 decoration: const InputDecoration(label: Text('Nome')),
                 textInputAction: TextInputAction.next,
                 onSaved: (title) => _formData['title'] = title as String,
+                validator: (_title){
+                  final title = _title ?? '';
+                  if(title.trim().isEmpty){
+                    return "O nome é obrigatorio";
+                  }
+
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: const InputDecoration(label: Text('Preço')),
                 textInputAction: TextInputAction.next,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 onSaved: (price) => _formData['price'] = double.parse(price as String),
+                 validator: (_price){
+                  String priceString = _price ?? '';
+                  double price = double.tryParse(priceString) ?? -1;
+                  if(price < 0){
+                    return "Informe um preço válido";
+                  }
+                 
+
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: const InputDecoration(label: Text('Descrição')),
@@ -83,6 +115,17 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
                 onSaved: (description) => _formData['description'] = description as String,
+                validator: (_description){
+                  final description = _description ?? '';
+                  if(description.trim().isEmpty){
+                    return "A descrição é obrigatoria";
+                  }
+                  if(description.trim().length < 5){
+                    return "A descrição precisa ter mais de 5 caracteres";
+                  }
+
+                  return null;
+                },
 
               ),
               Padding(
@@ -100,6 +143,14 @@ class _ProductFormPageState extends State<ProductFormPage> {
                         focusNode: _imageFocus,
                         onFieldSubmitted: (_) => _submitForm(),
                         onSaved: (imgUrl) => _formData['imgUrl'] = imgUrl as String,
+                        /*validator: (url){
+                          if(!_isValidImageUrl(url!)){
+                            return "Informe uma URL válida";
+
+                          }
+
+                          return null;
+                       },*/
 
                       ),
                     ),

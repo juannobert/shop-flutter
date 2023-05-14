@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shop/models/product.dart';
+import 'package:shop/models/product_list.dart';
+import '../utils/app_data.dart';
 
 class ProductItem extends StatelessWidget {
   final Product product;
@@ -17,19 +20,44 @@ class ProductItem extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed(AppRoutes.PRODUCT_FORM, arguments: product);
+                },
                 icon: const Icon(
                   Icons.edit,
                   color: Colors.purple,
-                )
-              ),
+                )),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  showDialog<bool>(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("Tem certeza"),
+                          content:
+                              const Text("Deseja realmente excluir o pedido?"),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Provider.of<ProductList>(context, listen: false).removeProduct(product);
+                                  Navigator.of(context).pop(true); //Exclui o pedido
+                                },
+                                child: const Text("SIM")),
+                            TextButton(
+                                onPressed: () {
+                                  //Retorna falso para a função que é um Future
+                                  Navigator.of(context).pop(false);
+                                },
+                                child: const Text("NÂO"))
+                          ],
+                        );
+                      });
+                },
                 icon: Icon(
                   Icons.delete,
                   color: Theme.of(context).colorScheme.error,
-                )
-              )
+                ))
           ],
         ),
       ),

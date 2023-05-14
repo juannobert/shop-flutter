@@ -1,9 +1,7 @@
-import 'dart:math';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:shop/models/product.dart';
+import 'package:shop/models/product_list.dart';
 
 class ProductFormPage extends StatefulWidget {
   const ProductFormPage({super.key});
@@ -24,6 +22,28 @@ class _ProductFormPageState extends State<ProductFormPage> {
     _imageFocus.addListener(atualizar);
   }
 
+  //è chamado quando o estado de uma depedência muda
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(_formData.isEmpty){
+      final arg = ModalRoute.of(context)?.settings.arguments;
+
+      if(arg != null){
+        final product = arg as Product;
+
+        _formData['id'] = product.id as String;
+        _formData['title'] = product.title;
+        _formData['description'] = product.description;
+        _formData['imgUrl'] = product.imageUrl;
+        _formData['price'] = product.price;
+
+        _imgUrlController.text = _formData['imgUrl'] as String;
+
+      }
+    }
+  }
+  
   @override
   void dispose() {
     super.dispose();
@@ -34,7 +54,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     setState(() {}); //Atualiza o estado da aplicação fazendo a imagem aparecer
   }
 
-    bool _isValidImageUrl(String url){
+   bool _isValidImageUrl(String url){
       bool isValidUrl = Uri.tryParse(url)?.hasAbsolutePath ?? false;
       bool isValidPath = url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg');
 
@@ -48,18 +68,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
       return;
     }
 
-
     _formKey.currentState?.save();
-    final newProduct = Product(
-      id: Random().nextInt(99999).toString(), 
-      title: _formData['title'] as String, 
-      description: _formData['description'] as String, 
-      imageUrl: _formData['imgUrl'] as String, 
-      price: _formData['price'] as double
-    );
-
-    print(newProduct.id);
-    print(newProduct.title);
+    
+    Provider.of<ProductList>(context,listen: false).addProductFromData(_formData);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -81,6 +93,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _formData['title']?.toString(),
                 decoration: const InputDecoration(label: Text('Nome')),
                 textInputAction: TextInputAction.next,
                 onSaved: (title) => _formData['title'] = title as String,
@@ -94,6 +107,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 },
               ),
               TextFormField(
+                initialValue:  _formData['price']?.toString(),
                 decoration: const InputDecoration(label: Text('Preço')),
                 textInputAction: TextInputAction.next,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -110,6 +124,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 },
               ),
               TextFormField(
+                initialValue:  _formData['description']?.toString(),
                 decoration: const InputDecoration(label: Text('Descrição')),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.multiline,

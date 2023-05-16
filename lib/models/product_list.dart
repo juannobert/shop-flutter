@@ -1,14 +1,13 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shop/data/dummy_data.dart';
 import 'package:shop/models/product.dart';
-
+import 'package:http/http.dart' as http;
 class ProductList with ChangeNotifier {
   final List<Product> _items = DUMMY_PRODUCTS;
-
-  
-
+  final _baseUrl = "https://shop-flutter-6159e-default-rtdb.firebaseio.com";
 
   //Cria um clone da lista de itens sem dar acesso a referência
   List<Product> get items => [..._items];
@@ -19,7 +18,7 @@ class ProductList with ChangeNotifier {
     return _items.length;
   }
 
-  void addProductFromData(Map<String,Object> formData ){
+  Future<void> addProductFromData(Map<String,Object> formData ){
 
     bool hasId = formData['id'] != null;
 
@@ -32,27 +31,49 @@ class ProductList with ChangeNotifier {
     );
 
     if(hasId){
-      updateProduct(product);
+      return  updateProduct(product);
       
     }else{
-      addProduct(product);
+      return addProduct(product);
     }
   }
 
-  void updateProduct(Product product){
-    print("pId $product.id");
+  Future<void> updateProduct(Product product){
     int index = _items.indexWhere((p) => p.id == product.id);
-    
-    print("index: $index");
     if(index >= 0){
       _items[index] = product;
       notifyListeners();
     }
 
+    return Future.value();
+
   }
-  void addProduct(Product product) {
-    _items.add(product);
-    notifyListeners();
+  Future<void> addProduct(Product product) {
+    Future future =  http.post(
+      Uri.parse("$_baseUrl/products.json"),
+      body: jsonEncode(
+        {
+        'title' : product.price,
+        'description' : product.description,
+        'price' : product.price,
+        'isFavorite' : product.isFavorite,
+        'imageUrl' : product.imageUrl
+        }
+      )
+    );
+
+    return future.then((response){ //è executado após a resposta ser processada
+      String id = jsonDecode(response.body)['name']; //pegado id gerado pelo firebase
+      _items.add(Product(
+        id: id ,
+        title: product.title, 
+        description: product.description, 
+        imageUrl: product.imageUrl, 
+        price: product.price
+      ));
+      notifyListeners();
+
+    });
   }
 
   void removeProduct(Product product){

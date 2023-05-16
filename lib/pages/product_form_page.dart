@@ -15,6 +15,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
   final _imageFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
   final _formData = <String,Object>{};
+  bool _isLoading = false;
+
 
   @override
   void initState() {
@@ -70,8 +72,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
     _formKey.currentState?.save();
     
-    Provider.of<ProductList>(context,listen: false).addProductFromData(_formData);
-    Navigator.of(context).pop();
+    setState(() => _isLoading = true);
+    
+    Provider.of<ProductList>(context,listen: false).addProductFromData(_formData).then((value){
+      setState(() => _isLoading = false);
+      Navigator.of(context).pop();
+    });
   }
 
   @override
@@ -86,7 +92,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           )
         ],
       ),
-      body: Padding(
+      body: _isLoading ? const Center(child:  CircularProgressIndicator()) : Padding(
         padding: const EdgeInsets.all(10.0),
         child: Form(
           key: _formKey,
@@ -102,7 +108,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if(title.trim().isEmpty){
                     return "O nome é obrigatorio";
                   }
-
                   return null;
                 },
               ),
@@ -118,8 +123,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if(price < 0){
                     return "Informe um preço válido";
                   }
-                 
-
                   return null;
                 },
               ),

@@ -48,9 +48,9 @@ class ProductList with ChangeNotifier {
     return Future.value();
 
   }
-  Future<void> addProduct(Product product) {
-    Future future =  http.post(
-      Uri.parse("$_baseUrl/products.json"),
+  Future<void> addProduct(Product product) async {
+    final response =  await http.post(
+      Uri.parse("$_baseUrl/products.s"),
       body: jsonEncode(
         {
         'title' : product.price,
@@ -61,8 +61,6 @@ class ProductList with ChangeNotifier {
         }
       )
     );
-
-    return future.then((response){ //è executado após a resposta ser processada
       String id = jsonDecode(response.body)['name']; //pegado id gerado pelo firebase
       _items.add(Product(
         id: id ,
@@ -73,7 +71,7 @@ class ProductList with ChangeNotifier {
       ));
       notifyListeners();
 
-    });
+
   }
 
   void removeProduct(Product product){

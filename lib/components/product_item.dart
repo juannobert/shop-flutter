@@ -40,8 +40,8 @@ class ProductItem extends StatelessWidget {
                           actions: [
                             TextButton(
                                 onPressed: () {
-                                  Provider.of<ProductList>(context, listen: false).removeProduct(product);
-                                  Navigator.of(context).pop(true); //Exclui o pedido
+                                  Navigator.of(context)
+                                      .pop(true); //Exclui o pedido
                                 },
                                 child: const Text("SIM")),
                             TextButton(
@@ -52,7 +52,21 @@ class ProductItem extends StatelessWidget {
                                 child: const Text("NÂO"))
                           ],
                         );
-                      });
+                      }).then((value) async {
+                    if (value ?? false) {
+                      try {
+                        await Provider.of<ProductList>(
+                          context,
+                          listen: false,
+                        ).removeProduct(product);
+                      } catch (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(error.toString()),
+                          duration: const Duration(seconds: 2),
+                        ));
+                      }
+                    }
+                  });
                 },
                 icon: Icon(
                   Icons.delete,

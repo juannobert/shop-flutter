@@ -16,7 +16,7 @@ class ProductsOverviewPage extends StatefulWidget {
 }
 
 class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
-  bool _showFavoriteOnly = false, _isLoading = false;
+  bool _showFavoriteOnly = false, _isLoading = true;
 
   @override
   void initState() {
@@ -24,7 +24,7 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
     Provider.of<ProductList>(context, listen: false)
         .loadProducts()
         .then((value) => setState(
-              () => _isLoading = true,
+              () => _isLoading = false,
             ));
   }
 

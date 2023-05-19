@@ -7,8 +7,8 @@ import 'package:http/http.dart' as http;
 
 class ProductList with ChangeNotifier {
   final List<Product> _items = [];
-  final _url =
-      "https://shop-flutter-6159e-default-rtdb.firebaseio.com/products.json";
+  final _baseUrl =
+      "https://shop-flutter-6159e-default-rtdb.firebaseio.com";
 
   //Cria um clone da lista de itens sem dar acesso a referência
   List<Product> get items => [..._items];
@@ -22,18 +22,17 @@ class ProductList with ChangeNotifier {
 
   Future<void> loadProducts() async {
     _items.clear();
-    final response = await http.get(Uri.parse(_url));
+    final response = await http.get(Uri.parse("$_baseUrl/products.json"));
     if(response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((productId, productData) {
-      print(productData);
       _items.add(
         Product(
           id: productId,
-          title: productData["title"] as String,
-          description: productData["description"] as String,
-          price: productData["price"] as double, 
-          imageUrl: productData["imageUrl"] as String,
+          title: productData["title"],
+          description: productData["description"],
+          price: productData["price"], 
+          imageUrl: productData["imageUrl"],
         ),
       );
     });
@@ -57,18 +56,25 @@ class ProductList with ChangeNotifier {
     }
   }
 
-  Future<void> updateProduct(Product product) {
+  Future<void> updateProduct(Product product) async {
     int index = _items.indexWhere((p) => p.id == product.id);
+    print(index);
     if (index >= 0) {
+    await http.patch(Uri.parse("$_baseUrl/products/${product.id}.json"),
+        body: jsonEncode({
+          'title': product.title,
+          'description': product.description,
+          'price': product.price,
+          'imageUrl': product.imageUrl
+        }));
       _items[index] = product;
       notifyListeners();
     }
 
-    return Future.value();
   }
 
   Future<void> addProduct(Product product) async {
-    final response = await http.post(Uri.parse(_url),
+    final response = await http.post(Uri.parse("$_baseUrl/products.json"),
         body: jsonEncode({
           'title': product.title,
           'description': product.description,

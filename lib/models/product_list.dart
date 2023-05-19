@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:shop/exceptions/http_exception.dart';
 import 'package:shop/models/product.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop/utils/constraints.dart';
 
 class ProductList with ChangeNotifier {
   final List<Product> _items = [];
-  final _baseUrl =
-      "https://shop-flutter-6159e-default-rtdb.firebaseio.com";
 
   //Cria um clone da lista de itens sem dar acesso a referência
   List<Product> get items => [..._items];
@@ -23,7 +22,7 @@ class ProductList with ChangeNotifier {
 
   Future<void> loadProducts() async {
     _items.clear();
-    final response = await http.get(Uri.parse("$_baseUrl/products.json"));
+    final response = await http.get(Uri.parse("${Constraints.PRODUCTS}.json"));
     if(response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((productId, productData) {
@@ -34,6 +33,7 @@ class ProductList with ChangeNotifier {
           description: productData["description"],
           price: productData["price"], 
           imageUrl: productData["imageUrl"],
+          isFavorite: productData['isFavorite']
         ),
       );
     });
@@ -59,9 +59,8 @@ class ProductList with ChangeNotifier {
 
   Future<void> updateProduct(Product product) async {
     int index = _items.indexWhere((p) => p.id == product.id);
-    print(index);
     if (index >= 0) {
-    await http.patch(Uri.parse("$_baseUrl/products/${product.id}.json"),
+    await http.patch(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json"),
         body: jsonEncode({
           'title': product.title,
           'description': product.description,
@@ -75,7 +74,7 @@ class ProductList with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final response = await http.post(Uri.parse("$_baseUrl/products.json"),
+    final response = await http.post(Uri.parse("${Constraints.PRODUCTS}.json"),
         body: jsonEncode({
           'title': product.title,
           'description': product.description,
@@ -102,7 +101,7 @@ class ProductList with ChangeNotifier {
       _items.removeAt(index);
       notifyListeners();
 
-     final response = await http.post(Uri.parse("$_baseUrl/products.jsons"));
+     final response = await http.delete(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json"));
 
      if(response.statusCode >= 400){
       _items.insert(index,product);
@@ -114,4 +113,8 @@ class ProductList with ChangeNotifier {
      }
     }
   }
+
+ 
+
+
 }

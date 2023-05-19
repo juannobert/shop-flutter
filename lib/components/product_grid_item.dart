@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/models/product.dart';
+import 'package:shop/models/product_list.dart';
 import '../models/cart.dart';
 import '../utils/app_data.dart';
 
 class ProductGridItem extends StatelessWidget {
   const ProductGridItem({super.key});
 
-
+  
   @override
   Widget build(BuildContext context) {
   final product = Provider.of<Product>(context);
   final cart = Provider.of<Cart>(context);
+
 
   //listen = false: As notificações não farão que a interface seja renderizada
     return GridTile(

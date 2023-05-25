@@ -40,18 +40,7 @@ class CartPage extends StatelessWidget {
                   ),
                   //Faz com que o Text e o Chip se juntem na ponta
                   const Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<OrderList>(context,listen: false).addOrder(cart);
-                      cart.clear();
-                    },
-                    child: Text(
-                      "COMPRAR",
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor
-                      ),
-                    ),
-                  )
+                  cartButton(cart: cart)
                 ],
               ),
             ),
@@ -63,6 +52,40 @@ class CartPage extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class cartButton extends StatefulWidget {
+  const cartButton({
+    super.key,
+    required this.cart,
+  });
+
+  final Cart cart;
+
+  @override
+  State<cartButton> createState() => _cartButtonState();
+}
+
+class _cartButtonState extends State<cartButton> {
+
+  bool isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: widget.cart.itemsCount == 0 ? null : () async {
+        setState(() => isLoading = true);
+        await Provider.of<OrderList>(context,listen: false).addOrder(widget.cart);
+        widget.cart.clear();
+        setState(() => isLoading = false);
+      },
+      child: isLoading ? const CircularProgressIndicator() : Text(
+        "COMPRAR",
+        style: TextStyle(
+          color: Theme.of(context).primaryColor
+        ),
       ),
     );
   }

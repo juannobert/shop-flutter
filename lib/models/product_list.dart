@@ -8,7 +8,11 @@ import 'package:http/http.dart' as http;
 import 'package:shop/utils/constraints.dart';
 
 class ProductList with ChangeNotifier {
-  final List<Product> _items = [];
+  final String  _token;
+
+  
+  List<Product> _items = [];
+
 
   //Cria um clone da lista de itens sem dar acesso a referência
   List<Product> get items => [..._items];
@@ -19,10 +23,11 @@ class ProductList with ChangeNotifier {
   int get itemsCount {
     return _items.length;
   }
+  ProductList(this._token,this._items);
 
   Future<void> loadProducts() async {
     _items.clear();
-    final response = await http.get(Uri.parse("${Constraints.PRODUCTS}.json"));
+    final response = await http.get(Uri.parse("${Constraints.PRODUCTS}.json?auth=$_token"));
     if(response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((productId, productData) {
@@ -60,7 +65,7 @@ class ProductList with ChangeNotifier {
   Future<void> updateProduct(Product product) async {
     int index = _items.indexWhere((p) => p.id == product.id);
     if (index >= 0) {
-    await http.patch(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json"),
+    await http.patch(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json?auth=$_token"),
         body: jsonEncode({
           'title': product.title,
           'description': product.description,
@@ -74,7 +79,7 @@ class ProductList with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final response = await http.post(Uri.parse("${Constraints.PRODUCTS}.json"),
+    final response = await http.post(Uri.parse("${Constraints.PRODUCTS}.json?auth=$_token"),
         body: jsonEncode({
           'title': product.title,
           'description': product.description,
@@ -101,7 +106,7 @@ class ProductList with ChangeNotifier {
       _items.removeAt(index);
       notifyListeners();
 
-     final response = await http.delete(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json"));
+     final response = await http.delete(Uri.parse("${Constraints.PRODUCTS}/${product.id}.json?auth=$_token"));
 
      if(response.statusCode >= 400){
       _items.insert(index,product);

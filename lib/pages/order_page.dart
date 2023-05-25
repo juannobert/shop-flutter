@@ -1,39 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/components/app_drawer.dart';
 import 'package:shop/components/order_widget.dart';
 import 'package:shop/models/order_list.dart';
-import '../components/app_drawer.dart';
 
-class OrderPage extends StatelessWidget {
-  OrderPage({super.key});
-
+class OrdersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    OrderList orderList = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Meus pedidos"),
+        title: const Text('Meus Pedidos'),
       ),
       drawer: const AppDrawer(),
       body: FutureBuilder(
-        future: Provider.of<OrderList>(context).loadProducts(),
+        future: Provider.of<OrderList>(context, listen: false).loadProducts(),
         builder: (ctx, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.error != null) {
+            return const Center(
+              child: Text('Ocorreu um erro!'),
+            );
           } else {
             return Consumer<OrderList>(
-                builder: (ctx, orders, child) => ListView.builder(
-                    itemCount: orderList.items.length,
-                    itemBuilder: (_, i) => OrderWidget(orderList.items[i])));
+              builder: (ctx, orders, child) => ListView.builder(
+                itemCount: orders.itemsCount,
+                itemBuilder: (ctx, i) => OrderWidget( orders.items[i]),
+              ),
+            );
           }
         },
       ),
-      /*
-      body: ListView.builder(
-        itemCount: orderList.items.length,
-        itemBuilder: (_,i) => isLoading ? const Center(child: CircularProgressIndicator(),) : OrderWidget(orderList.items[i])
-        ),
-        */
     );
   }
 }

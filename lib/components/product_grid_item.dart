@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/models/auth.dart';
 import 'package:shop/models/product.dart';
 import 'package:shop/models/product_list.dart';
 import '../models/cart.dart';
@@ -13,7 +14,7 @@ class ProductGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
   final product = Provider.of<Product>(context);
   final cart = Provider.of<Cart>(context);
-
+  Auth auth = Provider.of(context);
 
   //listen = false: As notificações não farão que a interface seja renderizada
     return GridTile(
@@ -35,7 +36,8 @@ class ProductGridItem extends StatelessWidget {
             leading: Consumer<Product>( //Renderiza as notificações em apenas um trecho do código
               builder:(ctx,product,_) => IconButton(
                 onPressed: (){
-                  product.toggleFavorite();
+                  
+                  product.toggleFavorite(auth.token!,auth.uid!);
                 },
                 icon: Icon(product.isFavorite ? Icons.favorite_rounded : Icons.favorite_border),
               ),

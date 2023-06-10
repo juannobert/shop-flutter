@@ -9,6 +9,7 @@ import 'package:shop/utils/constraints.dart';
 
 class ProductList with ChangeNotifier {
   final String  _token;
+  final String _userId;
 
   
   List<Product> _items = [];
@@ -23,14 +24,22 @@ class ProductList with ChangeNotifier {
   int get itemsCount {
     return _items.length;
   }
-  ProductList(this._token,this._items);
+  ProductList(this._token,this._items,this._userId);
 
   Future<void> loadProducts() async {
     _items.clear();
     final response = await http.get(Uri.parse("${Constraints.PRODUCTS}.json?auth=$_token"));
     if(response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
+
+    final favResponse = await http.get(Uri.parse("${Constraints.USER_FAVORITE}/$_userId.json?auth=$_token"));
+      
+    Map<String,dynamic> favData = favResponse.body == 'null' ? {} : jsonDecode(favResponse.body);
+    print(jsonDecode(favResponse.body));
+
+
     data.forEach((productId, productData) {
+      final isFavorite = favData[productId] ?? false;
       _items.add(
         Product(
           id: productId,
@@ -38,7 +47,7 @@ class ProductList with ChangeNotifier {
           description: productData["description"],
           price: productData["price"], 
           imageUrl: productData["imageUrl"],
-          isFavorite: productData['isFavorite']
+          isFavorite: isFavorite
         ),
       );
     });
@@ -84,7 +93,6 @@ class ProductList with ChangeNotifier {
           'title': product.title,
           'description': product.description,
           'price': product.price,
-          'isFavorite': product.isFavorite,
           'imageUrl': product.imageUrl
         }));
     String id =
